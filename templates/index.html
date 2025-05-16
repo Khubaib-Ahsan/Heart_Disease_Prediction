@@ -854,8 +854,14 @@
                 if (data.ca < 0 || data.ca > 3) {
                     throw new Error('Number of major vessels must be between 0-3');
                 }
+                
+                // Determine the base URL based on the environment
+                const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://127.0.0.1:5000'  // Local development
+                : '';  // Production (uses relative URL)
 
-                const response = await fetch('http://127.0.0.1:5000/predict', {
+                try {
+                const response = await fetch(`${API_BASE_URL}/api/predict`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
