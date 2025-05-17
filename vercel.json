@@ -1,19 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "templates/*",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
-      "src": "/predict",
-      "dest": "app.py"
+      "src": "/",
+      "dest": "/templates/index.html"
     },
     {
       "src": "/(.*)", 
