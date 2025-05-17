@@ -1,14 +1,22 @@
 import pickle
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 import numpy as np
 import pandas as pd
 import os
 
 app = Flask(__name__)
 
-# Model loading
+# Get absolute path to model
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'best_model.pkl')
+
+# Model configuration
+EXPECTED_FEATURES = [
+    'fbs', 'sex', 'restecq', 'dataset', 'cp', 'thal', 'exang', 'slope',
+    'trestbps', 'chol', 'thalch', 'age', 'oldpeak', 'ca'
+]
+
 try:
-    with open('best_model.pkl', 'rb') as f:
+    with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
     print("Model loaded successfully!")
 except Exception as e:
@@ -17,7 +25,7 @@ except Exception as e:
 
 @app.route('/')
 def serve_index():
-    return send_from_directory('templates', 'index.html')
+    return app.send_static_file('index.html')
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -27,25 +35,22 @@ def predict():
     try:
         data = request.get_json()
         
-        # Create input DataFrame (ensure this matches your model's expected features)
         input_data = pd.DataFrame([[
-            data['age'],
+            data['fbs'],
             data['sex'],
+            data['restecg'],
+            data['dataset'],
             data['cp'],
+            data['thal'],
+            data['exang'],
+            data['slope'],
             data['trestbps'],
             data['chol'],
-            data['fbs'],
-            data['restecg'],
             data['thalch'],
-            data['exang'],
+            data['age'],
             data['oldpeak'],
-            data['slope'],
-            data['ca'],
-            data['thal']
-        ]], columns=[
-            'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
-            'thalch', 'exang', 'oldpeak', 'slope', 'ca', 'thal'
-        ])
+            data['ca']
+        ]], columns=EXPECTED_FEATURES)
         
         prediction = int(model.predict(input_data)[0])
         
