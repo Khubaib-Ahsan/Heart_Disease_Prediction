@@ -13,7 +13,7 @@ EXPECTED_FEATURES = [
 ]
 
 try:
-    with open("render-demo/best_model.pkl", "rb") as f:
+    with open("best_model.pkl", "rb") as f:
         model = pickle.load(f)
     print("Model loaded successfully!")
 except Exception as e:
