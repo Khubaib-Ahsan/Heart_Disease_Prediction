@@ -1,1 +1,1 @@
-Everything is working fine locally but due to 1-2 path errors, model is not predicting on deployed website. Thanks!
+Everything is working fine locally but due to 1-2 path errors, model is not predicting on deployed website. So I am adding screenshots for the model prediction. Also, I added jupyter notebook for complete python code. Thanks!
