@@ -1,28 +1,23 @@
 import pickle
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory
 import numpy as np
 import pandas as pd
-from werkzeug.exceptions import BadRequest
+import os
 
 app = Flask(__name__)
 
-# Model configuration - must match exactly what the model expects
-EXPECTED_FEATURES = [
-    'fbs', 'sex', 'restecg', 'dataset', 'cp', 'thal', 'exang', 'slope',
-    'trestbps', 'chol', 'thalch', 'age', 'oldpeak', 'ca'
-]
-
+# Model loading
 try:
-    with open("Heart_Disease_Prediction/best_model.pkl", "rb") as f:
+    with open('best_model.pkl', 'rb') as f:
         model = pickle.load(f)
     print("Model loaded successfully!")
 except Exception as e:
     print(f"Model loading error: {str(e)}")
     model = None
 
-@app.route("/")
-def home():
-    return render_template('index.html')
+@app.route('/')
+def serve_index():
+    return send_from_directory('templates', 'index.html')
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -32,37 +27,36 @@ def predict():
     try:
         data = request.get_json()
         
-        # Create DataFrame with columns in exact order the model expects
+        # Create input DataFrame (ensure this matches your model's expected features)
         input_data = pd.DataFrame([[
-            data['fbs'],
+            data['age'],
             data['sex'],
-            data['restecg'],
-            data['dataset'],
             data['cp'],
-            data['thal'],
-            data['exang'],
-            data['slope'],
             data['trestbps'],
             data['chol'],
+            data['fbs'],
+            data['restecg'],
             data['thalch'],
-            data['age'],
+            data['exang'],
             data['oldpeak'],
-            data['ca']
-        ]], columns=EXPECTED_FEATURES)
+            data['slope'],
+            data['ca'],
+            data['thal']
+        ]], columns=[
+            'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
+            'thalch', 'exang', 'oldpeak', 'slope', 'ca', 'thal'
+        ])
         
         prediction = int(model.predict(input_data)[0])
         
         return jsonify({
             "risk_level": prediction,
             "message": get_risk_message(prediction)[0],
-            "recommendation": get_risk_message(prediction)[1],
-            "disclaimer": "Results are predictions based on statistical analysis and should not replace professional medical advice."
+            "recommendation": get_risk_message(prediction)[1]
         })
         
-    except KeyError as e:
-        return jsonify({"error": f"Missing required field: {str(e)}"}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
 
 def get_risk_message(level):
     messages = [
@@ -75,4 +69,4 @@ def get_risk_message(level):
     return messages[level]
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run()
