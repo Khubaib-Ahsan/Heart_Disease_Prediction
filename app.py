@@ -13,7 +13,7 @@ EXPECTED_FEATURES = [
 ]
 
 try:
-    with open("best_model.pkl", "rb") as f:
+    with open("Heart_Disease_Prediction/best_model.pkl", "rb") as f:
         model = pickle.load(f)
     print("Model loaded successfully!")
 except Exception as e:
