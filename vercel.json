@@ -1,13 +1,12 @@
 {
   "version": 2,
+  "builds": [
+    { "src": "app.py", "use": "@vercel/python" },
+    { "src": "templates/**", "use": "@vercel/static" }
+  ],
   "routes": [
-    {
-      "src": "/",
-      "dest": "/templates/index.html"
-    },
-    {
-      "src": "/(.*)", 
-      "dest": "/templates/index.html"
-    }
+    { "src": "/predict", "dest": "app.py", "methods": ["POST"] },
+    { "src": "/static/(.*)", "dest": "templates/static/$1" },
+    { "src": "/(.*)", "dest": "templates/index.html" }
   ]
 }
