@@ -1,8 +1,8 @@
 import pickle
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory
 import numpy as np
 import pandas as pd
-from werkzeug.exceptions import BadRequest
+import os
 
 app = Flask(__name__)
 
@@ -12,8 +12,11 @@ EXPECTED_FEATURES = [
     'trestbps', 'chol', 'thalch', 'age', 'oldpeak', 'ca'
 ]
 
+# Universal model path handling
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'best_model.pkl')
+
 try:
-    with open("best_model.pkl", "rb") as f:
+    with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
     print("Model loaded successfully!")
 except Exception as e:
@@ -22,7 +25,7 @@ except Exception as e:
 
 @app.route("/")
 def home():
-    return render_template('index.html')
+    return send_from_directory('templates', 'index.html')
 
 @app.route("/predict", methods=["POST"])
 def predict():
